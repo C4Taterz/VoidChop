@@ -44,22 +44,29 @@ function trimAllAudio(filePaths, outputDir, onLog = console.log, onError = conso
     const base = path.basename(file, ext);
     const outputPath = path.join(resolvedOutput, `${base}.mp3`);
 
-    ffmpeg(file)
-      .on('error', err => {
-        onError(`❌ ${base}${ext}: ${err.message}`);
-        completed++;
-        if (completed === files.length) {
-          onComplete();
-        }
-      })
-      .on('end', () => {
-        onLog(`✅ Trimmed: ${base}${ext}`);
-        completed++;
-        if (completed === files.length) {
-          onComplete();
-        }
-      })
-      .save(outputPath);
+ffmpeg(file)
+  .noVideo() // ✂️ Trim audio only
+  .audioFilters(silenceParams)
+  .audioBitrate('320k')  
+  .outputOptions('-map_metadata', '-1')      // 🧹 Strip metadata
+  .outputOptions('-write_xing', '0')         // 🎯 Fix MP3 duration estimation
+  .on('end', () => {
+    onLog(`✅ Trimmed: ${base}${ext}`);
+    completed++;
+    if (completed === files.length) {
+      onComplete();
+    }
+  })
+  .on('error', err => {
+    onError(`❌ ${base}${ext}: ${err.message}`);
+    completed++;
+    if (completed === files.length) {
+      onComplete();
+    }
+  })
+  .outputOptions('-write_xing', '0') // For MP3: fixes duration estimate
+  .save(outputPath);
+
   });
 }
 
