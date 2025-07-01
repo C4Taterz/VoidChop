@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audio Trimmer</title>
+  <style>
+    body.dark {
+      background-color: #030e14;
+      color: #ffffff;
+    }
+
+    body.light {
+      background-color: #f4f4f4;
+      color: #111111;
+    }
+
+    pre {
+      background-color: #1e1e1e;
+      color: #ffffff;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎧 Audio Trimmer</h1>
+  <button id="trimBtn">Start Trimming</button>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
