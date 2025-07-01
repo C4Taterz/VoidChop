@@ -2,34 +2,35 @@
   "name": "voidchop",
   "version": "1.0.1",
   "main": "main.js",
-"build": {
-  "asarUnpack": ["ffmpeg/**"],
-  "appId": "com.taterz.spud",
-  "files": [
-    "main.js",
-    "preload.js",
-    "renderer.js",
-    "trimmer.js",
-    "index.html",
-    "style.css",
-    "ffmpeg/**",
-    "assets/**",
-    "settings.json"
-  ],
-  "directories": {
-    "output": "dist/VoidChop"
+  "build": {
+    "asarUnpack": [
+      "ffmpeg/**"
+    ],
+    "appId": "com.taterz.spud",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "trimmer.js",
+      "index.html",
+      "style.css",
+      "ffmpeg/**",
+      "assets/**",
+      "settings.json"
+    ],
+    "directories": {
+      "output": "dist/VoidChop"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon/icon.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "C4Taterz",
+      "repo": "VoidChop"
+    }
   },
-  "win": {
-    "target": "nsis",
-    "icon": "icon/icon.ico"
-  },
-  "publish": {
-    "provider": "github",
-    "owner": "C4Taterz",
-    "repo": "VoidChop"
-  }
-},
-
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
@@ -41,7 +42,8 @@
   "description": "",
   "dependencies": {
     "dotenv": "^17.0.0",
-    "fluent-ffmpeg": "^2.1.3"
+    "fluent-ffmpeg": "^2.1.3",
+    "update-electron-app": "^3.1.1"
   },
   "devDependencies": {
     "electron": "^37.1.0",
