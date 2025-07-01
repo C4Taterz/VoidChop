@@ -1,10 +1,35 @@
 {
-  "name": "audio-editor",
+  "name": "voidchop",
   "version": "1.0.0",
   "main": "main.js",
+  "build": {
+    "asarUnpack": [
+      "ffmpeg/**"
+    ],
+    "appId": "com.taterz.spud",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "trimmer.js",
+      "index.html",
+      "style.css",
+      "ffmpeg/**",
+      "assets/**",
+      "settings.json"
+    ],
+    "directories": {
+      "output": "dist/VoidChop"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon/icon.ico"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +41,6 @@
   },
   "devDependencies": {
     "electron": "^37.1.0",
-    "electron-packager": "^17.1.2"
+    "electron-builder": "^26.0.12"
   }
 }

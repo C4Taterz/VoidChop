@@ -5,6 +5,8 @@ const fs = require('fs');
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
+app.disableHardwareAcceleration();
+
 // Helper functions
 function loadSettings() {
   try {
@@ -32,8 +34,6 @@ function createWindow () {
     }
   });
 
-const fs = require('fs');
-
 ipcMain.handle('select-files', async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile', 'multiSelections'],
@@ -45,6 +45,35 @@ ipcMain.handle('select-files', async () => {
   // ✅ Just return selected file paths — don’t copy anything
   return result.filePaths;
 });
+
+const { trimAllAudio } = require('./trimmer');
+const { shell } = require('electron');
+
+ipcMain.handle('trim-audio', async (event, files, outputDir) => {
+  console.log('🔁 Trimming triggered:', files, outputDir);
+
+  const start = Date.now();
+
+  trimAllAudio(
+    files,
+    outputDir,
+    msg => {
+      console.log('[ffmpeg-log]', msg);
+      event.sender.send('ffmpeg-log', msg);
+    },
+    err => {
+      console.error('[ffmpeg-error]', err);
+      event.sender.send('ffmpeg-error', err);
+    },
+    () => {
+      const duration = ((Date.now() - start) / 1000).toFixed(1);
+      console.log('✅ Trimming complete.');
+      event.sender.send('ffmpeg-log', `🎉 All files finished trimming.\n⏱️ Done in ${duration}s`);
+      shell.openPath(outputDir);
+    }
+  );
+});
+
 
 
 ipcMain.handle('set-destination-folder', async () => {

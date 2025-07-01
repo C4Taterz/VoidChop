@@ -1,27 +1,11 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const { trimAllAudio } = require(path.join(__dirname, 'trimmer.js'));
 const { nativeTheme } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-  // Open file picker via main process
   selectFiles: () => ipcRenderer.invoke('select-files'),
-
-setDestinationFolder: () => ipcRenderer.invoke('set-destination-folder'),
-getSavedDestination: () => ipcRenderer.invoke('get-saved-destination'),
-
-  // Start trimming process with selected files
-runTrimmer: (filePaths, outputPath) => {
-  trimAllAudio(
-    filePaths,
-    outputPath,
-    msg => window.dispatchEvent(new CustomEvent('ffmpeg-log', { detail: msg })),
-    err => window.dispatchEvent(new CustomEvent('ffmpeg-error', { detail: err }))
-  );
-},
-
-  // Theme toggle
+  setDestinationFolder: () => ipcRenderer.invoke('set-destination-folder'),
+  getSavedDestination: () => ipcRenderer.invoke('get-saved-destination'),
+  runTrimmer: (filePaths, outputPath) => ipcRenderer.invoke('trim-audio', filePaths, outputPath),
   toggleTheme: (mode) => {
     if (['light', 'dark'].includes(mode)) {
       nativeTheme.themeSource = mode;
@@ -29,3 +13,12 @@ runTrimmer: (filePaths, outputPath) => {
     }
   }
 });
+
+ipcRenderer.on('ffmpeg-log', (event, msg) => {
+  window.dispatchEvent(new CustomEvent('ffmpeg-log', { detail: msg }));
+});
+
+ipcRenderer.on('ffmpeg-error', (event, err) => {
+  window.dispatchEvent(new CustomEvent('ffmpeg-error', { detail: err }));
+});
+
