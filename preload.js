@@ -1,11 +1,15 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { nativeTheme } = require('electron');
+// Optionally import `app` if you expose it another way
 
 contextBridge.exposeInMainWorld('api', {
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+
   selectFiles: () => ipcRenderer.invoke('select-files'),
   setDestinationFolder: () => ipcRenderer.invoke('set-destination-folder'),
   getSavedDestination: () => ipcRenderer.invoke('get-saved-destination'),
   runTrimmer: (filePaths, outputPath) => ipcRenderer.invoke('trim-audio', filePaths, outputPath),
+
   toggleTheme: (mode) => {
     if (['light', 'dark'].includes(mode)) {
       nativeTheme.themeSource = mode;
@@ -13,6 +17,7 @@ contextBridge.exposeInMainWorld('api', {
     }
   }
 });
+
 
 ipcRenderer.on('ffmpeg-log', (event, msg) => {
   window.dispatchEvent(new CustomEvent('ffmpeg-log', { detail: msg }));

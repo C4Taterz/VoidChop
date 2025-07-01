@@ -88,6 +88,19 @@ window.addEventListener('ffmpeg-log', e => {
   }
 });
 
+window.addEventListener('DOMContentLoaded', async () => {
+  const el = document.getElementById('version-label');
+  
+  try {
+    const version = await window.api.getAppVersion();
+    el.textContent = `v${version}`;
+  } catch (err) {
+    console.warn('❗ Version fetch failed:', err);
+    el.textContent = 'v—';
+  }
+});
+
+
 window.addEventListener('ffmpeg-error', e => {
   logBox.textContent += `\n🚨 ${e.detail}`;
   logBox.scrollTop = logBox.scrollHeight;

@@ -111,6 +111,9 @@ ipcMain.handle('get-saved-destination', () => {
   return current.lastOutputPath || null;
 });
 
+ipcMain.handle('get-app-version', () => app.getVersion());
+
+
 
   const isMac = process.platform === 'darwin';
 
