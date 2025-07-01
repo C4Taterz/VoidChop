@@ -1,7 +1,23 @@
+// TO UPDATE THE APP. type "npm run build -- --win --x64 --publish=always"  
+
 const { app, BrowserWindow, Menu, nativeTheme } = require('electron');
 const { ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+if (app.isPackaged) {
+  const { updateElectronApp, UpdateSourceType } = require('update-electron-app');
+
+  updateElectronApp({
+    updateSource: {
+      type: UpdateSourceType.StaticStorage,
+baseUrl: 'https://github.com/C4Taterz/VoidChop/releases/latest/download'
+    },
+    logger: require('electron-log')
+  });
+} else {
+  console.log('🚧 Skipping auto-update check in development');
+}
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
