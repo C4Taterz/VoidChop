@@ -18,7 +18,8 @@ document.getElementById('selectFilesBtn').addEventListener('click', async () => 
   selectedPaths = await window.api?.selectFiles?.();
 
   if (selectedPaths?.length) {
-    logBox.textContent += `\n📥 Added files:\n  • ${selectedPaths.join('\n  • ')}`;
+const fileNames = selectedPaths.map(path => path.split(/[/\\]/).pop());
+logBox.textContent += `\n📥 Added files:\n  • ${fileNames.join('\n  • ')}`;
   } else {
     logBox.textContent += `\n⚠️ No files selected.`;
   }
