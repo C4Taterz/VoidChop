@@ -35,14 +35,41 @@
       transition: background 0.3s ease;
     }
 
+#selectFilesBtn {
+  margin-left: 0.5rem;
+  background-color: #4caf50;
+}
+
+#selectFilesBtn:hover {
+  background-color: #3c9440;
+}
+
+
     button:hover {
       background-color: #005fa3;
     }
+
+    #fileList {
+  margin-top: 1rem;
+  padding-left: 1.2rem;
+  font-family: monospace;
+  color: #90ee90;
+}
+
+#fileList li::before {
+  content: '✅ ';
+  margin-right: 0.4em;
+}
+
   </style>
 </head>
 <body>
   <h1>🎧 Audio Trimmer</h1>
   <button id="trimBtn">Start Trimming</button>
+  <button id="selectFilesBtn">➕ Add Audio Files</button>
+  <button id="setDestinationBtn">📂 Set Destination Folder</button>
+<h2>📝 Converted Files</h2>
+<ul id="fileList"></ul>
 
   <script src="renderer.js"></script>
 </body>
