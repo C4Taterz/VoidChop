@@ -1,23 +1,10 @@
 // TO UPDATE THE APP. type "npm run build -- --win --x64 --publish=always"  
 
 const { app, BrowserWindow, Menu, nativeTheme } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const { ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-
-if (app.isPackaged) {
-  const { updateElectronApp, UpdateSourceType } = require('update-electron-app');
-
-  updateElectronApp({
-    updateSource: {
-      type: UpdateSourceType.StaticStorage,
-baseUrl: 'https://github.com/C4Taterz/VoidChop/releases/latest/download'
-    },
-    logger: require('electron-log')
-  });
-} else {
-  console.log('🚧 Skipping auto-update check in development');
-}
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
@@ -114,73 +101,103 @@ ipcMain.handle('get-saved-destination', () => {
 ipcMain.handle('get-app-version', () => app.getVersion());
 
 
+const isMac = process.platform === 'darwin';
 
-  const isMac = process.platform === 'darwin';
+const menuTemplate = [
+  ...(isMac ? [{
+    label: app.name,
+    submenu: [
+      { role: 'about' },
+      { type: 'separator' },
+      { role: 'quit' }
+    ]
+  }] : []),
 
-  const menuTemplate = [
-    ...(isMac ? [{
-      label: app.name,
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
-    }] : []),
+  {
+    label: 'File',
+    submenu: [ { role: 'quit' } ]
+  },
 
-    {
-      label: 'File',
-      submenu: [ { role: 'quit' } ]
-    },
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' }, { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' }, { role: 'copy' }, { role: 'paste' }
+    ]
+  },
 
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' }, { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' }, { role: 'copy' }, { role: 'paste' }
-      ]
-    },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Light Mode',
+        click: () => nativeTheme.themeSource = 'light'
+      },
+      {
+        label: 'Dark Mode',
+        click: () => nativeTheme.themeSource = 'dark'
+      },
+      { type: 'separator' },
+      { role: 'reload' },
+      { role: 'toggleDevTools' }
+    ]
+  },
 
-    {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Light Mode',
-          click: () => nativeTheme.themeSource = 'light'
-        },
-        {
-          label: 'Dark Mode',
-          click: () => nativeTheme.themeSource = 'dark'
-        },
-        { type: 'separator' },
-        { role: 'reload' },
-        { role: 'toggleDevTools' }
-      ]
-    },
+  {
+    label: 'Window',
+    submenu: [ { role: 'minimize' }, { role: 'close' } ]
+  },
 
-    {
-      label: 'Window',
-      submenu: [ { role: 'minimize' }, { role: 'close' } ]
-    },
-
-    {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'Learn More',
-          click: async () => {
-            const { shell } = require('electron');
-            await shell.openExternal('https://electronjs.org');
-          }
+  {
+    label: 'Help',
+    submenu: [
+      {
+        label: 'Check for Updates',
+        click: () => {
+          autoUpdater.checkForUpdatesAndNotify().catch(err => {
+            dialog.showErrorBox('Update Error', `Failed to check for updates:\n${err.message}`);
+          });
         }
-      ]
-    }
-  ];
+      },
+      {
+        label: 'Learn More',
+        click: async () => {
+          const { shell } = require('electron');
+          await shell.openExternal('https://electronjs.org');
+        }
+      }
+    ]
+  }
+];
 
-  const menu = Menu.buildFromTemplate(menuTemplate);
-  Menu.setApplicationMenu(menu);
+Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
 
   win.loadFile('index.html');
 }
+
+autoUpdater.autoDownload = false;
+
+autoUpdater.on('update-available', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update Available',
+    message: 'A new version is available. Downloading now...'
+  });
+  autoUpdater.downloadUpdate();
+});
+
+autoUpdater.on('error', (error) => {
+  dialog.showErrorBox('Update Error', `An unexpected error occurred:\n${error.message}`);
+});
+
+autoUpdater.on('update-not-available', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Up-to-date',
+    message: 'You are already using the latest version.'
+  });
+});
+
 
 app.whenReady().then(createWindow);
