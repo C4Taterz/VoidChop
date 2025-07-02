@@ -9,11 +9,16 @@ if (saved) {
 
 function updateFileBadge(count) {
   const badge = document.getElementById("fileBadge");
-  if (!badge) return;
+  const button = document.getElementById("fileCounterBtn");
+  if (!badge || !button) return;
+
   badge.textContent = count;
   badge.style.animation = "none";
   void badge.offsetWidth;
   badge.style.animation = "badgePulse 0.4s ease";
+
+  // 🔄 Toggle visual class based on count
+  button.classList.toggle("active", count > 0);
 }
 
 
