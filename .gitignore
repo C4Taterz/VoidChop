@@ -1,7 +1,6 @@
 dist
 ffmpeg
 node_modules
-.env
 settings.json
 *.log
 *.bak
