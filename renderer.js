@@ -13,13 +13,17 @@ function updateFileBadge(count) {
   if (!badge || !button) return;
 
   badge.textContent = count;
+
+  // 👇 Trigger pulse animation
   badge.style.animation = "none";
   void badge.offsetWidth;
   badge.style.animation = "badgePulse 0.4s ease";
 
-  // 🔄 Toggle visual class based on count
+  // 👇 Toggle styles based on file presence
+  badge.classList.toggle("active", count > 0);   // 🔄 this is where you apply a dark variant
   button.classList.toggle("active", count > 0);
 }
+
 
 
 function updateConvertedListVisibility() {
@@ -53,6 +57,19 @@ function updateConvertedListVisibility() {
       updateFileBadge(selectedPaths.length || 0);
     }
   }
+
+  const fileBadge = document.getElementById('fileBadge');
+
+// Example function that updates file count
+function updateFileCount(count) {
+  fileBadge.textContent = count;
+
+  if (count > 0) {
+    fileBadge.classList.add('active');
+  } else {
+    fileBadge.classList.remove('active');
+  }
+}
 
   const realItems = Array.from(fileList.querySelectorAll('li')).filter(
     li => li.id !== 'converted-placeholder'
