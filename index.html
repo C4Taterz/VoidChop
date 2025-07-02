@@ -1,10 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Audio Trimmer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Poppins:wght@400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>VoidChop</title>
   <style>
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  color:rgb(38, 200, 250);
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 4px #00d5ff, 0 0 4px #00ffff, 0 0 8px #00ffff;  cursor: default;
+}
+
+
+body, p, h2 {
+  font-family: 'Poppins', sans-serif;
+}
+
+pre, #fileList {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+@keyframes buttonPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+button:hover .ph {
+  transform: rotate(6deg) scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+
+button:hover {
+  background-color: #26a4ff;
+  box-shadow: 0 0 8px #00ffff, 0 0 12px #00ffff;
+  animation: buttonPop 0.4s ease;
+}
+
     body.dark {
-      background-color: #030e14;
+      background-color: #01141f;
       color: #ffffff;
     }
 
@@ -18,51 +55,116 @@
       color: #ffffff;
       padding: 1rem;
       border-radius: 8px;
-      font-family: monospace;
+      font-family: 'Share Tech Mono', monospace;
       font-size: 0.95rem;
       white-space: pre-wrap;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
-    button {
-      background-color: #007acc;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+button {
+  background-color: #007acc;
+  color: #000;
+  border: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: normal;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+
+    .button-group {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap; /* optional, if you want responsiveness */
+}
+
 
 #selectFilesBtn {
-  margin-left: 0.5rem;
-  background-color: #4caf50;
+  background-color: rgb(1, 126, 5);
 }
 
 #selectFilesBtn:hover {
-  background-color: #3c9440;
+  background-color: rgb(91, 228, 95);
 }
-
-
-    button:hover {
-      background-color: #005fa3;
-    }
 
     #fileList {
   margin-top: 1rem;
   padding-left: 1.2rem;
-  font-family: monospace;
+  font-family: Poppins;
   color: #90ee90;
 }
 
+#fileList li {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#fileList li:hover {
+  transform: translateX(5px);
+  opacity: 0.9;
+}
+
+
 #fileList li::before {
-  content: '✅ ';
+  content: ' ';
   margin-right: 0.4em;
+}
+
+body.dark {
+  background: radial-gradient(#061d2c, #000814);
+  background-size: cover;
+}
+
+.ph {
+  font-family: 'Phosphor';
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.2rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+#fileCounterBtn {
+  background-color: #0f2b3a;
+  color: #00ffff;
+  border: none;
+  position: relative;
+  display: flex;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+}
+
+#fileBadge {
+  background: #00ffff;
+  color: #000814;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  padding: 0.15em 0.6em;
+  margin-left: 0.4rem;
+  font-weight: bold;
+  animation: badgePulse 0.4s ease;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
 }
 
   </style>
 </head>
+<body>
 <div id="version-label" style="
   position: absolute;
   bottom: 10px;
@@ -75,14 +177,73 @@
   v...
 </div>
 
-<body>
-  <h1>🎧 VoidChop</h1>
-  <button id="trimBtn">Start Trimming</button>
-  <button id="selectFilesBtn">➕ Add Audio Files</button>
-  <button id="setDestinationBtn">📂 Set Destination Folder</button>
-<h2>📝 Converted Files</h2>
-<ul id="fileList"></ul>
+<div id="destination-label" style="
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.75em;
+  opacity: 0.6;
+  user-select: none;
+  text-align: right;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+">
+</div>
 
-  <script src="renderer.js"></script>
+
+  <h1>🎧 VoidChop</h1>
+
+<div class="button-group" style="align-items: center;">
+  <button id="trimBtn">
+    <i class="ph ph-scissors"></i> Trim Audio
+  </button>
+  <button id="selectFilesBtn">
+    <i class="ph ph-plus-circle"></i> Add Files
+  </button>
+  <button id="setDestinationBtn">
+    <i class="ph ph-folder-notch-open"></i> Output Folder
+  </button>
+
+</div>
+<div id="badgeContainer" style="display: none;">
+  <button id="fileCounterBtn">
+    <i class="ph ph-list-bullets"></i> Files
+    <span id="fileBadge">0</span>
+  </button>
+</div>
+
+  <h2>📝 Converted Files</h2>
+  <ul id="fileList"></ul>
+  <ul id="selectedFilesList" style="list-style: none; padding: 0; margin-top: 1em;"></ul>
+
+  <div id="version-label" style="
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.75em;
+    opacity: 0.4;
+    pointer-events: none;
+    user-select: none;
+  ">v...</div>
+
+  <div id="destination-label" style="
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.75em;
+    opacity: 0.6;
+    user-select: none;
+    text-align: right;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  "></div>
+
+<script src="renderer.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<!-- Counter button stash (ready to move into placeholder line) -->
 </body>
-</html>
+
