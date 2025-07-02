@@ -6,3 +6,4 @@ settings.json
 *.bak
 .DS_Store
 Thumbs.db
+.env
