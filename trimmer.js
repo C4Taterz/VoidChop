@@ -46,6 +46,7 @@ function trimAllAudio(filePaths, outputDir, onLog = console.log, onError = conso
 
 ffmpeg(file)
   .noVideo() // ✂️ Trim audio only
+  .audioCodec('libmp3lame')
   .audioFilters(silenceParams)
   .audioBitrate('320k')  
   .outputOptions('-map_metadata', '-1')      // 🧹 Strip metadata
