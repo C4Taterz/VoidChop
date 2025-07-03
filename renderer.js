@@ -23,6 +23,17 @@ if (saved) {
 function updateFileBadge(count) {
   const badge = document.getElementById("fileBadge");
   const button = document.getElementById("fileCounterBtn");
+  const clearBtn = document.getElementById('clearFilesBtn');
+clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+
+document.getElementById('clearFilesBtn').addEventListener('click', () => {
+  selectedPaths = [];
+  updateFileBadge(0);
+  renderSelectedFiles();
+  updateConvertedListVisibility();
+  logBox.textContent = '🧼 File list cleared.';
+});
+
 
   if (!badge || !button) return;
 
