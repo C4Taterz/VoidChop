@@ -1,8 +1,8 @@
-// TO UPDATE THE APP. type "npm run build -- --win --x64 --publish=always"  
+// TO UPDATE THE APP. type "npm run build -- --win --x64 --publish=always"
 
-const { app, BrowserWindow, Menu, nativeTheme } = require('electron');
-const { autoUpdater } = require('electron-updater');
-const { ipcMain, dialog } = require('electron');
+const {app, BrowserWindow, Menu, nativeTheme} = require('electron');
+const {autoUpdater} = require('electron-updater');
+const {ipcMain, dialog} = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -26,7 +26,7 @@ function saveSettings(data) {
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 600,
+    width: 650,
     height: 750,
     backgroundColor: '#121f1f',
     webPreferences: {
@@ -36,6 +36,8 @@ function createWindow () {
       sandbox: false
     }
   });
+  win.setMinimumSize(650, 750);
+  win.setMaximumSize(650, 750);
 
 ipcMain.handle('select-files', async () => {
   const result = await dialog.showOpenDialog({
@@ -53,7 +55,7 @@ const { trimAllAudio } = require('./trimmer');
 const { shell } = require('electron');
 
 ipcMain.handle('trim-audio', async (event, files, outputDir) => {
-  console.log('🔁 Trimming triggered:', files, outputDir);
+  console.log('Trimming triggered:');
 
   const start = Date.now();
 
@@ -70,7 +72,7 @@ ipcMain.handle('trim-audio', async (event, files, outputDir) => {
     },
     () => {
       const duration = ((Date.now() - start) / 1000).toFixed(1);
-      console.log('✅ Trimming complete.');
+      console.log('Trimming complete.');
       event.sender.send('ffmpeg-log', `🎉 All files finished trimming.\n⏱️ Done in ${duration}s`);
       shell.openPath(outputDir);
     }

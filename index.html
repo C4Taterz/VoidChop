@@ -1,259 +1,660 @@
 <!DOCTYPE html>
 <html>
-<head>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Poppins:wght@400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<title>VoidChop</title>
-  <style>
-h1 {
-  font-family: 'Orbitron', sans-serif;
-  color:rgb(38, 200, 250);
-  font-size: 2.5rem;
-  letter-spacing: 1px;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 4px #00d5ff, 0 0 4px #00ffff, 0 0 8px #00ffff;  cursor: default;
-}
+    <head>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@600&family=Poppins:wght@400&family=Share+Tech+Mono&family=Roboto:wght@400&display=swap" rel="stylesheet">
+        <title>VoidChop</title>
+        <style>
+            #topBar {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex;
+                padding: 0.6rem 1rem;
+                background-color: #0a1e28;
+                border-bottom: 1px solid #00ffff;
+            }
+
+            #version-note {
+                position: relative;
+                top: -35px;
+            }
+
+            #version-label {
+                position: relative;
+                top: -35px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                color: #00ffff;
+                text-shadow:
+                    0 0 2px #00e0ff,
+                    0 0 4px #00e0ff;
+                font-family: 'Orbitron', sans-serif;
+            }
+
+            h1 {
+                font-family: 'Orbitron', sans-serif;
+                color: rgb(38, 200, 250);
+                font-size: 2.5rem;
+                letter-spacing: 1px;
+                margin-bottom: 1rem;
+                text-shadow: 0 0 4px #00d5ff, 0 0 4px #00ffff, 0 0 8px #00ffff;
+                cursor: default;
+            }
+
+            body,
+            h2,
+            p {
+                font-family: 'Poppins', sans-serif;
+                color:#04869c
+            }
+
+            #fileList,
+            pre {
+                font-family: 'Share Tech Mono', monospace;
+            }
+
+            li {
+                scroll-snap-align: start;
+            }
+
+            html, body, #app {
+                height: 100%;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                }
+
+            #mainContent {
+                flex-grow: 1;
+                overflow-y: auto;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                }
+
+            #contentTop {
+                flex-shrink: 0; /* prevents it from growing or shrinking */
+                }
+
+            #selectedFilesList {
+                flex-grow: 1;
+                overflow-y: auto;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                min-height: 300px;
+                }
+
+            #fileList,
+                #selectedFilesList {
+                max-height: calc(100vh - 100px);                                /* max-height: calc(100vh - 180px);  Adjust 180px based on your other visible UI */                
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-right: 4px;
+                margin-bottom: 1rem;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch; /* helps with momentum on touchscreens */
+                scroll-snap-type: y proximity;
+            }
+
+            #fileList::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 30px;
+                width: 100%;
+                pointer-events: none;
+                background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            }
 
 
-body, p, h2 {
-  font-family: 'Poppins', sans-serif;
-}
-
-pre, #fileList {
-  font-family: 'Share Tech Mono', monospace;
-}
-
-@keyframes buttonPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-button:hover .ph {
-  transform: rotate(6deg) scale(1.1);
-  transition: transform 0.2s ease;
-}
+            #fileList::-webkit-scrollbar {
+                width: 6px;
+            }
+            #fileList::-webkit-scrollbar-thumb {
+                background-color: #00ffff;
+                border-radius: 3px;
+            }
 
 
-button:hover {
-  background-color: #26a4ff;
-  box-shadow: 0 0 8px #00ffff, 0 0 12px #00ffff;
-  animation: buttonPop 0.4s ease;
-}
+            button:hover .ph {
+                transform: rotate(6deg) scale(1.1) !important;
+                transition: transform 0.2s ease;
+            }
 
-    body.dark {
-      background-color: #01141f;
-      color: #ffffff;
-    }
+            button:hover {
+                background-color: #26a4ff;
+                box-shadow: 0 0 8px #00ffff, 0 0 12px #00ffff;
+                animation: breath 2.4s ease-in-out infinite, buttonPop 0.4s ease;
+            }
 
-    body.light {
-      background-color: #f4f4f4;
-      color: #111111;
-    }
+            body.dark {
+                background-color: #01141f;
+                color: #ffffff;
+            }
 
-    pre {
-      background-color: #1e1e1e;
-      color: #ffffff;
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.95rem;
-      white-space: pre-wrap;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
+            body.light {
+                background-color: #f4f4f4;
+                color: #111111;
+            }
 
-button {
-  background-color: #007acc;
-  color: #000;
-  border: none;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.1rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: normal;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+            pre {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                padding: .5rem;
+                margin-top: 0;
+                border-radius: 8px;
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 0.95rem;
+                white-space: pre-wrap;
+                box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            }
 
+            button {
+                background-color: #007acc;
+                color: #000;
+                border: none;
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 1.1rem;
+                padding: 0.6rem 1.2rem;
+                border-radius: 6px;
+                font-weight: 800;
+                letter-spacing: 0.1px ;
+                text-shadow: 0 0 2px #00d5ff, 0 0 5px #00ff95, 0 0 10px #00ffff;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
 
-    .button-group {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap; /* optional, if you want responsiveness */
-}
+            .button-group {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: nowrap;
+                flex-shrink: 0;
+            }
 
+                        #badgeContainer {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-top: 0.8rem;
+                }
 
-#selectFilesBtn {
-  background-color: rgb(1, 126, 5);
-}
+            #buttonGroup {
+                display: flex; /* optional, if you want responsiveness */
+                justify-content: center; /* optional, if you want responsiveness */
+                gap: 1rem; /* optional, if you want responsiveness */
+                margin: 20px 0; /* optional, if you want responsiveness */
+                /* optional, if you want responsiveness */
+            }
 
-#selectFilesBtn:hover {
-  background-color: rgb(91, 228, 95);
-}
+            button .ph {
+                transition: transform 0.3s ease;
+            }
 
-    #fileList {
-  margin-top: 1rem;
-  padding-left: 1.2rem;
-  font-family: Poppins;
-  color: #90ee90;
-}
+            #selectFilesBtn {
+                background-color: rgb(1, 126, 5);
+                margin: 0;          /* reset any default margin */
+                transform: none;    /* clear any nudge */
+                position: static;   /* if it was bumped out of flow */
+            }
 
-#fileList li {
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-#fileList li:hover {
-  transform: translateX(5px);
-  opacity: 0.9;
-}
-
-
-#fileList li::before {
-  content: ' ';
-  margin-right: 0.4em;
-}
-
-body.dark {
-  background: radial-gradient(#061d2c, #000814);
-  background-size: cover;
-}
-
-.ph {
-  font-family: 'Phosphor';
-  font-style: normal;
-  font-weight: normal;
-  font-size: 1.2rem;
-  margin-right: 0.4rem;
-  vertical-align: middle;
-}
-
-@keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-
-#fileCounterBtn.active {
-  background-color: #00d9ff;
-  color: #000814;
-  box-shadow: 0 0 0px #00ffff, 0 0 0px #02afff;
-  transition: all 1s ease;
-}
-
-#fileCounterBtn {
-  background-color: #0f2b3a;
-  color: #00ffff;
-  border: none;
-  position: relative;
-  display: flex;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.05rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  cursor: default;
-  display: inline-flex;
-  align-items: center;
-}
-
-#fileBadge {
-  background: #00ffff;
-  color: #000814;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  padding: 0.15em 0.6em;
-  margin-left: 0.4rem;
-  font-weight: bold;
-  animation: badgePulse 0.4s ease;
-}
-
-#fileBadge.active {
-  background: #11585e; /* darker cyan */
-  color: #ffffff;
-  animation: badgePulse 0.4s ease;
-}
-
-@keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.25); }
-}
-
-  </style>
-</head>
-<body>
+            #selectFilesBtn:hover {
+                background-color: rgb(91, 228, 95);
+            }
 
 
-<div id="destination-label" style="
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.75em;
-  opacity: 0.6;
-  user-select: none;
-  text-align: right;
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-">
+            #fileListWrapper {
+                min-height: 200px;
+            }
+
+
+            #fileList {
+                margin-top: 1rem;
+                padding-left: 1.2rem;
+                font-family: Poppins;
+                color: #508650;
+            }
+
+
+
+            #fileList li {
+                opacity: 0;
+                transform: translateY(-5px);
+                animation: fadeIn 0.3s ease forwards;
+                }
+
+                @keyframes fadeIn {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                }
+
+
+            #fileList li:hover {
+                transform: translateX(5px);
+                opacity: 0.9;
+            }
+
+            #fileList li::before {
+                content: none;
+                margin-right: 0.4em;
+                display: none;
+            }
+
+            body.dark {
+                background: radial-gradient(#061d2c, #000814);
+                background-size: cover;
+            }
+
+            .ph {
+                font-family: 'Phosphor';
+                font-style: normal;
+                font-weight: normal;
+                font-size: 1.2rem;
+                margin-right: 0.4rem;
+                vertical-align: middle;
+            }
+
+            h2 i.ph {
+                color: rgb(38, 200, 250); /* matches h1 */
+                text-shadow: 
+                    0 0 2px #00d5ff,
+                    0 0 2px #00ffff,
+                    0 0 5px #00ffff;
+                font-size: 2.4rem;
+                vertical-align: middle;
+                }
+
+            h2 {  
+                font-family: 'Orbitron', sans-serif;
+                color: rgb(0, 156, 204);
+                letter-spacing: 0.5px;
+                text-shadow:
+                    0 0 3px #00b7ff,
+                    0 0 1px #00b7ff,
+                    0 0 1px #00b7ff;
+                }
+
+
+            #fileCounterBtn.active {
+                background-color: #00adcc;
+                color: #000814;
+                box-shadow: 0 0 0 #008080, 0 0 0 #217399;
+                transition: all 1s ease;
+            }
+
+            #fileCounterBtn {
+                padding: 0.4em 0.8em;
+                display: inline-flex;
+                text-align: center;
+                white-space: nowrap;
+                align-items: center;
+                background-color: #0f2b3a;
+                color: #00beee;
+                border: none;
+                position: relative;
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 1.05rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 6px;
+                cursor: default;
+                display: inline-flex;
+                min-width: 120px;
+                max-width: 100%;
+                justify-content: center;
+            }
+
+            #fileBadge {
+                background: #007491;
+                color: #000814;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                padding: 0.2em 0.75em;
+                margin-left: 0.4rem;
+                font-weight: bold;
+                animation: badgePulse 0.4s ease;
+                max-width: 100%;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+
+            #fileBadge.hidden {
+                display: none;
+            }
+
+            #fileBadge.active {
+                background: #11585e;
+                /* darker cyan */
+                color: #ffffff;
+                animation: badgePulse 0.4s ease;
+            }
+
+            #clearFilesBtn {
+                background-color: #3b0a0a;
+                color: #ffdddd;
+                border: none;
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 1.05rem;
+                padding: 0.4rem 0.8rem;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-left: 0rem;
+                }
+
+
+            #clearFilesBtn:hover {
+                display: inline-flex;
+                align-items: center;
+                background-color: #ffffff00;
+                box-shadow: 0 0 0px #ff666600;
+                }
+
+                .remove-btn {
+                background-color: #00e1ff;
+                border: none;
+                color: #0077ff;
+                font-size: 1.5rem;
+                padding: 0.3rem 1.8rem; /* Adjust size of box */
+                cursor: pointer;
+                transition: all 0.2s ease;
+                }
+
+                .remove-btn:hover {
+                color: #ffffff;
+                background-color: #ff4b4b00;
+                border-radius: 4px;
+                transform:scale(1.15);
+                box-shadow: 0 0 10px #ffffff;
+                }
+
+            @keyframes buttonPop {
+                0% {
+                    transform: scale(1);
+                }
+                25% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+                75% {
+                    transform: scale(1);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+                animation-timing-function: ease-in;
+            }
+            50% {
+                transform: translateY(-10px);
+                animation-timing-function: ease-out;
+            }
+            }
+
+            /*.bounce {
+            animation: bounce 1s infinite;
+            } */
+
+
+            @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            }
+
+            /*.pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+            } */
+
+
+            @keyframes breath {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.85; }
+            }
+
+          /*  .breath {
+            animation: breath 2.4s ease-in-out infinite;
+            } */
+
+
+            @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+            }
+
+           /* .wiggle {
+            animation: wiggle 0.6s ease-in-out infinite;
+            }*/
+
+            @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+            }
+
+            /*.spin {
+            animation: spin 1.2s linear infinite;
+            }*/
+
+            @keyframes badgePulse {
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.25);
+                }
+            }
+
+            @keyframes pulseGlow {
+                0% {
+                    transform: scale(1);
+                    text-shadow: 0 0 0 rgba(0, 255, 255, 0.5);
+                }
+                50% {
+                    transform: scale(1.15);
+                    text-shadow: 0 0 6px rgba(0, 255, 255, 0.8);
+                }
+                100% {
+                    transform: scale(1);
+                    text-shadow: 0 0 0 rgba(0, 255, 255, 0.5);
+                }
+                }
+
+            @keyframes press {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(0.92); }
+                    100% { transform: scale(1); }
+                    }
+
+                    .press {
+                    animation: press 0.2s ease;
+                    }
+
+                    .ripple-container {
+                    position: relative;
+                    overflow: hidden;
+                    }
+
+                    .ripple-container::after {
+                    content: '';
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(0, 255, 255, 0.4);
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                    }
+
+            @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                    }
+
+            @keyframes flash {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.2; }
+                    }
+
+
+                    .flash {
+                    animation: flash 0.4s ease-in-out;
+                    }
+
+            @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-4px); }
+                    50% { transform: translateX(4px); }
+                    75% { transform: translateX(-2px); }
+                    }
+
+
+                    .shake {
+                    animation: shake 0.4s ease-in-out;
+                    }
+
+            @keyframes morph {
+                    0% {
+                        transform: scale(1);
+                        color: #00ffff;
+                    }
+                    50% {
+                        transform: scale(1.2);
+                        color: #ff00ff;
+                    }
+                    100% {
+                        transform: scale(1);
+                        color: #00ffff;
+                    }
+                    }
+
+                    .morph {
+                        animation: morph 1.2s ease-in-out infinite;
+                    }
+
+                    pre {
+                        border: 1px dashed red;
+                        }
+
+
+      #topBar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background: #0f2b3a;
+        border-bottom: 1px solid #00ffff;
+      }
+
+      #version-meta {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.9rem;
+        color: #00ffff;
+        display: flex;
+        gap: 0.5rem;
+        text-shadow: 0 0 2px #00e0ff, 0 0 6px #00e0ff;
+        flex-direction: column;
+        justify-content: flex-start; /* 👈 aligns content to the top */
+        align-items: flex-end;
+        font-family: 'Orbitron', sans-serif;
+        margin-top: 4px; /* 🔼 Raise slightly */
+        text-align: right;
+        line-height: 1;
+      }
+
+      #mainContent {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #selectedFilesList {
+        flex-grow: 1;
+        min-height: 0;           /* 👈 prevents content overflow from breaking layout */
+        list-style: none;
+        padding: 0;
+        margin-top: 1rem;
+        }
+
+
+      #fileList {
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Example: style your file items */
+      #fileList li,
+      #selectedFilesList li {
+        padding: 6px 12px;
+        border-bottom: 1px solid #1b3f4d;
+        color: #fff;
+      }
+
+</style>
+  <body>
+    <div id="app">
+      <header id="topBar">
+        <h1 class="app-title">🎧 VoidChop</h1>
+        <div id="version-meta">
+          <span id="version-note">Made By C4Taterz</span>
+          <span id="version-label">v...</span>
+        </div>
+      </header>
+
+      <div
+
+      <main id="mainContent">
+        <div id="contentTop">
+          <div class="button-group">
+            <button id="trimBtn">
+              <i class="ph ph-scissors"></i> Trim Audio
+            </button>
+            <button id="selectFilesBtn">
+              <i class="ph ph-plus-circle"></i> Add Files
+            </button>
+            <button id="setDestinationBtn">
+              <i class="ph ph-folder-notch-open"></i> Output Folder
+            </button>
+          </div>
+
+
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+  <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="ph ph-file"></i>Converted Files
+  </h2>
+  <div id="badgeContainer" style="display: flex; gap: 0.5rem;">
+    <button id="fileCounterBtn">
+      <i class="ph ph-list-bullets"></i>
+      <span id="fileBadge">0</span>
+    </button>
+    <button id="clearFilesBtn" style="display: none;">
+      <i class="ph ph-trash"></i> Clear
+    </button>
+  </div>
 </div>
 
+<ul id="fileList"></ul>
 
-  <h1>🎧 VoidChop</h1>
+        </div>
 
-<div class="button-group" style="align-items: center;">
-  <button id="trimBtn">
-    <i class="ph ph-scissors"></i> Trim Audio
-  </button>
-  <button id="selectFilesBtn">
-    <i class="ph ph-plus-circle"></i> Add Files
-  </button>
-  <button id="setDestinationBtn">
-    <i class="ph ph-folder-notch-open"></i> Output Folder
-  </button>
+        <ul id="selectedFilesList"></ul>
+      </main>
+    </div>
 
-</div>
-<div id="badgeContainer" style="display: none;">
-  <button id="fileCounterBtn">
-    <i class="ph ph-list-bullets"></i> Files
-    <span id="fileBadge">0</span>
-  </button>
-</div>
-
-  <h2>📝 Converted Files</h2>
-  <ul id="fileList"></ul>
-  <ul id="selectedFilesList" style="list-style: none; padding: 0; margin-top: 1em;"></ul>
-
-<div id="version-wrapper" style="
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.75em;
-  opacity: 0.4;
-  pointer-events: none;
-  user-select: none;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-">
-  <span id="version-note">Made By C4Taterz</span>
-  <span id="version-label">v...</span>
-</div>
-
-
-  <div id="destination-label" style="
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 0.75em;
-    opacity: 0.6;
-    user-select: none;
-    text-align: right;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  "></div>
-
-<script src="renderer.js"></script>
-<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-<!-- Counter button stash (ready to move into placeholder line) -->
-</body>
-
+    <script src="renderer.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  </body>
+</html>

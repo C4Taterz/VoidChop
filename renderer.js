@@ -1,3 +1,16 @@
+const fileList = document.getElementById('fileList');
+const fileListContainer = document.getElementById('selectedFilesList');
+
+const logBox = document.createElement('pre');
+logBox.style.overflowY = 'auto';
+logBox.style.maxHeight = '400px';
+logBox.style.marginTop = '0.8rem';
+
+fileList.insertAdjacentElement('afterend', logBox); // Attach logBox just below list
+
+let selectedPaths = []; // Important: should be declared globally
+
+
 let outputPath = null;
 (async () => {
   const saved = await window.api?.getSavedDestination?.();
@@ -10,9 +23,11 @@ if (saved) {
 function updateFileBadge(count) {
   const badge = document.getElementById("fileBadge");
   const button = document.getElementById("fileCounterBtn");
+
   if (!badge || !button) return;
 
-  badge.textContent = count;
+  badge.textContent = count > 0 ? `${count} file${count > 1 ? 's' : ''}` : '0';
+
 
   // 👇 Trigger pulse animation
   badge.style.animation = "none";
@@ -41,39 +56,31 @@ function updateConvertedListVisibility() {
 
     placeholder.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span>➕ Add files to start trimming</span>
+        <span id="outputPathDisplay">Output // ...</span>
         <span id="placeholderBadgeSlot"></span>
       </div>
     `;
 
     fileList.appendChild(placeholder);
-
-    const badge = document.getElementById("fileCounterBtn");
-    const slot = document.getElementById("placeholderBadgeSlot");
-
-    if (badge && slot) {
-      slot.appendChild(badge);
-      badge.style.display = "inline-flex";
-      updateFileBadge(selectedPaths.length || 0);
-    }
   }
 
-  const fileBadge = document.getElementById('fileBadge');
-
-// Example function that updates file count
-function updateFileCount(count) {
-  fileBadge.textContent = count;
-
-  if (count > 0) {
-    fileBadge.classList.add('active');
-  } else {
-    fileBadge.classList.remove('active');
+  const outputEl = document.getElementById('outputPathDisplay');
+  if (outputEl && outputPath) {
+    const parts = outputPath.split(/[\\/]/);
+    outputEl.textContent = `Output // ${parts[0]}\\...\\${parts[parts.length - 1]}`;
   }
-}
 
-  const realItems = Array.from(fileList.querySelectorAll('li')).filter(
-    li => li.id !== 'converted-placeholder'
-  );
+  const badge = document.getElementById('fileCounterBtn');
+  const slot = document.getElementById('placeholderBadgeSlot');
+  if (badge && slot) {
+    badge.appendChild(slot);
+  }
+
+  // ✅ Visibility logic
+const realItems = Array.from(fileList.querySelectorAll('li')).filter(
+  li => li.id !== 'converted-placeholder'
+);
+
 
   placeholder.style.opacity = realItems.length > 0 ? '0' : '0.5';
   placeholder.style.height = realItems.length > 0 ? '0' : 'auto';
@@ -85,23 +92,12 @@ function updateDestinationDisplay(fullPath) {
   const el = document.getElementById('destination-label');
   if (!el) return;
 
-  // Truncate to first and last folder parts
   const parts = fullPath.split(/[/\\]/);
-  if (parts.length <= 2) {
-    el.textContent = fullPath;
-  } else {
-    el.textContent = `Output | ${parts[0]}\\...\\${parts[parts.length - 1]}`;
-  }
-el.title = fullPath;
+  el.textContent = parts.length <= 2
+    ? fullPath
+    : `Output // ${parts[0]}\\...\\${parts[parts.length - 1]}`;
+  el.title = fullPath;
 }
-
-const fileListContainer = document.getElementById('selectedFilesList');
-const logBox = document.createElement('pre');
-logBox.style.overflowY = 'auto';
-logBox.style.maxHeight = '400px';
-document.body.appendChild(logBox);
-
-let selectedPaths = [];
 
 const fileIcons = {
   mp3: '🎵',
@@ -144,44 +140,50 @@ function renderSelectedFiles() {
     removeBtn.style.color = 'red';
     removeBtn.style.cursor = 'pointer';
     removeBtn.title = 'Remove file';
+    removeBtn.classList.add('remove-btn');
 
-removeBtn.addEventListener('click', () => {
-  selectedPaths = selectedPaths.filter(p => p !== fullPath);
-  updateFileBadge(selectedPaths.length);
-  renderSelectedFiles();
-
-  // ✨ Rewrite logBox based on updated selectedPaths
-  logBox.textContent = '';
-  if (selectedPaths.length) {
-    logBox.textContent += `📥 Current files:\n  • ${selectedPaths.map(p => {
-      const name = p.split(/[/\\]/).pop();
-      return name;
-    }).join('\n  • ')}`;
-  } else {
-    logBox.textContent += '📥 No files currently selected.';
-  }
-
-  logBox.scrollTop = logBox.scrollHeight;
-});
+    removeBtn.addEventListener('click', () => {
+      selectedPaths = selectedPaths.filter(p => p !== fullPath);
+      updateFileBadge(selectedPaths.length);
+      renderSelectedFiles();
+      updateConvertedListVisibility();
+      logBox.scrollTop = logBox.scrollHeight;
+    });
 
     li.appendChild(label);
     li.appendChild(removeBtn);
     fileListContainer.appendChild(li);
   });
+
+  // ✅ Centralized log message logic — always runs even if no files
+  logBox.textContent = '';
+  if (selectedPaths.length === 0) {
+    logBox.textContent = '🔄 Start by selecting audio files to process.';
+    logBox.style.display = 'block';
+  } else {
+    logBox.style.display = 'none';
+  }
 }
 
 
-document.getElementById('selectFilesBtn').addEventListener('click', async () => {
-  selectedPaths = await window.api?.selectFiles?.();
+document.querySelectorAll('.ripple-container').forEach(el => {
+  el.addEventListener('click', e => {
+    const ripple = el.cloneNode(true);
+    el.parentNode.replaceChild(ripple, el); // restart animation
+  });
+});
 
-  if (selectedPaths?.length) {
+
+document.getElementById('selectFilesBtn').addEventListener('click', async () => {
+  const newPaths = await window.api?.selectFiles?.();
+
+  if (newPaths?.length) {
+    const unique = newPaths.filter(p => !selectedPaths.includes(p));
+    selectedPaths = [...selectedPaths, ...unique];
+
     updateFileBadge(selectedPaths.length);
     renderSelectedFiles();
-
-    const names = selectedPaths.map(p => p.split(/[/\\]/).pop());
-    logBox.textContent = `📥 Current files:\n  • ${names.join('\n  • ')}`;
   } else {
-    logBox.textContent += `\n⚠️ No files selected.`;
     updateFileBadge(0);
   }
 
@@ -195,6 +197,7 @@ document.getElementById('setDestinationBtn').addEventListener('click', async () 
     outputPath = folder;
     logBox.textContent += `\n📁 Destination set to:\n  ${folder}`;
     updateDestinationDisplay(folder);
+    updateConvertedListVisibility();
   } else {
     logBox.textContent += `\n⚠️ No folder selected.`;
   }
@@ -255,19 +258,17 @@ function addConvertedFile(filename) {
   removeBtn.title = 'Remove from list';
 
 
-  li.appendChild(label);
-  li.appendChild(removeBtn); 
+      li.appendChild(label);
+      li.appendChild(removeBtn); 
 
-  fileList.appendChild(li); // 👈 make sure this is pointing to the correct UL element
-  updateConvertedListVisibility();
+      fileList.appendChild(li); // 👈 make sure this is pointing to the correct UL element
+      updateConvertedListVisibility();
 
-  removeBtn.addEventListener('click', () => { 
-  li.remove();
-  updateConvertedListVisibility(); // 👈 now it hides placeholder when needed
-});
-
+      removeBtn.addEventListener('click', () => { 
+      li.remove();
+      updateConvertedListVisibility(); // 👈 now it hides placeholder when needed
+  });
 }
-
 
 window.addEventListener('ffmpeg-log', e => {
   const msg = e.detail;
@@ -280,10 +281,11 @@ const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i)
   }
 });
 
-
-
 window.addEventListener('DOMContentLoaded', async () => {
   updateConvertedListVisibility();
+  renderSelectedFiles(); // now it has access to the real logBox
+
+  console.log('Startup selectedPaths:', selectedPaths);
 
   const el = document.getElementById('version-label');
   try {
@@ -294,7 +296,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     el.textContent = 'v—';
   }
 });
-
 
 window.addEventListener('ffmpeg-error', e => {
   logBox.textContent += `\n🚨 ${e.detail}`;
