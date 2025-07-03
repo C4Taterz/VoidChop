@@ -16,18 +16,22 @@
 
             #version-note {
                 position: relative;
+                color: #00e1ff;
                 top: -35px;
+                text-shadow: 
+                    0 0 2px #00ebfc,
+                    0 0 2px #00ebfc;
             }
 
             #version-label {
                 position: relative;
                 top: -35px;
-                font-size: 0.9rem;
+                font-size: 8px;
                 font-weight: bold;
-                color: #00ffff;
+                color: #00ccff00;
                 text-shadow:
-                    0 0 2px #00e0ff,
-                    0 0 4px #00e0ff;
+                    0 0 1px #00ebfc,
+                    0 0 1px #00ebfc;
                 font-family: 'Orbitron', sans-serif;
             }
 
@@ -37,7 +41,12 @@
                 font-size: 2.5rem;
                 letter-spacing: 1px;
                 margin-bottom: 1rem;
-                text-shadow: 0 0 4px #00d5ff, 0 0 4px #00ffff, 0 0 8px #00ffff;
+                text-decoration: solid underline #00829c;
+                animation: neonPulse 45s ease infinite;
+                text-shadow: 
+                0 0 2px #00d5ff,
+                0 0 4px #00ffff,
+                0 0 6px #00ffff;
                 cursor: default;
             }
 
@@ -107,6 +116,15 @@
                 pointer-events: none;
                 background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
             }
+
+            #outputPathDisplay {
+                text-decoration: dotted underline #007e7e;
+                font-size: 0.9rem;
+                font-weight: 250;
+                color: #c4eeff;
+                text-shadow: 0 0 6px #00ffff;
+            }
+
 
 
             #fileList::-webkit-scrollbar {
@@ -455,6 +473,26 @@
                 }
             }
 
+                        @keyframes neonPulse {
+            0%, 100% {
+                text-shadow:
+                0 0 2px #00ffff,
+                0 0 4px #00ffff,
+                0 0 8px #00ffff,
+                0 0 16px #0ff;
+                color: #00ffff;
+            }
+            50% {
+                text-shadow:
+                0 0 2px #ff00ff,
+                0 0 6px #ff00ff,
+                0 0 12px #ff00ff,
+                0 0 20px #f0f;
+                color: #ff00ff;
+            }
+            }
+
+
             @keyframes pulseGlow {
                 0% {
                     transform: scale(1);
@@ -633,7 +671,7 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
   <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-    <i class="ph ph-file"></i>Converted Files
+    <i class="ph ph-file"></i>Chopped Tracks
   </h2>
   <div id="badgeContainer" style="display: flex; gap: 0.5rem;">
     <button id="fileCounterBtn">
