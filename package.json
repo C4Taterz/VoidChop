@@ -1,6 +1,6 @@
 {
   "name": "voidchop",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "main": "main.js",
   "build": {
     "asarUnpack": [
