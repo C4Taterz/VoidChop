@@ -160,6 +160,15 @@ const menuTemplate = [
           autoUpdater.checkForUpdatesAndNotify().catch(err => {
             dialog.showErrorBox('Update Error', `Failed to check for updates:\n${err.message}`);
           });
+
+
+click: () => {
+  autoUpdater.checkForUpdates().catch(err => {
+    dialog.showErrorBox('Update Error', `Failed to check for updates:\n${err.message}`);
+  });
+}
+
+
         }
       },
       {
@@ -189,8 +198,14 @@ autoUpdater.on('update-available', () => {
   autoUpdater.downloadUpdate();
 });
 
-autoUpdater.on('error', (error) => {
-  dialog.showErrorBox('Update Error', `An unexpected error occurred:\n${error.message}`);
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update Ready',
+    message: 'Update has been downloaded. App will now restart to apply it.'
+  }).then(() => {
+    autoUpdater.quitAndInstall();
+  });
 });
 
 autoUpdater.on('update-not-available', () => {
@@ -200,6 +215,11 @@ autoUpdater.on('update-not-available', () => {
     message: 'You are already using the latest version.'
   });
 });
+
+autoUpdater.on('error', (error) => {
+  dialog.showErrorBox('Update Error', `An unexpected error occurred:\n${error.message}`);
+});
+
 
 
 app.whenReady().then(createWindow);
