@@ -28,12 +28,14 @@
     "publish": {
       "provider": "github",
       "owner": "C4Taterz",
-      "repo": "VoidChop"
+      "repo": "VoidChop",
+      "releaseType": "release"
     }
   },
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
+    "publish": "electron-builder --publish always",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
