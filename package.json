@@ -1,6 +1,6 @@
 {
   "name": "voidchop",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "description": "VoidChop: Strip silence, output clean MP3s—fast and simple.",
   "main": "main.js",
   "build": {
