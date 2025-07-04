@@ -550,15 +550,27 @@
                 }
                 }
 
-            @keyframes press {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(0.92); }
+                @keyframes press {
+                    0%   { transform: scale(1); }
+                    50%  { transform: scale(0.8); }
                     100% { transform: scale(1); }
                     }
 
-                    .press {
+
+                    button.press {
                     animation: press 0.2s ease;
                     }
+
+
+                    .press {
+                    animation: press 0.9s ease;
+                    animation-fill-mode: both;
+                    }
+
+                    button:hover .ph {
+                    transform: rotate(6deg) scale(1.1); /* ← this could override .press */
+                    }
+
 
                     .ripple-container {
                     position: relative;
@@ -739,7 +751,7 @@
       </main>
     </div>
 
-    <script src="renderer.js"></script>
+    <script src="./renderer.js" defer></script>
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
   </body>
 </html>

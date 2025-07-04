@@ -370,6 +370,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn('❗ Version fetch failed:', err);
     el.textContent = 'v—';
   }
+
+
+function bindButtonPressAnimations() {
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.remove('press');
+      void btn.offsetWidth;
+      btn.classList.add('press');
+    });
+  });
+}
+
 });
 
 window.addEventListener('ffmpeg-error', e => {
