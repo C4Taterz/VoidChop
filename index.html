@@ -65,6 +65,22 @@
                 font-family: 'Share Tech Mono', monospace;
             }
 
+            #fileList li:hover,
+            #selectedFilesList li:hover {
+                background-color: rgba(0, 255, 255, 0.1); /* 🔷 faint aqua glow */
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                transform: scale(1.015);
+            }
+
+            #fileList li:hover,
+            #selectedFilesList li:hover {
+                box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff66;
+            }
+
+
+
             li {
                 scroll-snap-align: start;
             }
