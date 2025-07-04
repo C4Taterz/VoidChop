@@ -188,7 +188,7 @@ function renderSelectedFiles() {
   // ✅ Centralized log message logic — always runs even if no files
   logBox.textContent = '';
   if (selectedPaths.length === 0) {
-    logBox.textContent = '📂 Nothing in the queue. Click “Add Files” to begin.';
+    logBox.textContent = '📂 Click “Add Files” to begin.';
     logBox.style.display = 'block';
   } else {
     logBox.style.display = 'none';
