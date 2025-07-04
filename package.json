@@ -9,6 +9,7 @@
     ],
     "appId": "com.taterz.spud",
     "files": [
+      "icon/**",
       "main.js",
       "preload.js",
       "renderer.js",
