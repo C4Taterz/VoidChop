@@ -38,6 +38,7 @@ function trimAllAudio(
     onError = console.error,
     onComplete = () => {}
 ) {
+
     const fallbackDir = './trimmed_audio';
     const resolvedOutput = outputDir || fallbackDir;
     fs.mkdirSync(resolvedOutput, {recursive: true});

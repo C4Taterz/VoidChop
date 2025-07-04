@@ -10,8 +10,10 @@
                 justify-content: space-between;
                 align-items: flex;
                 padding: 0.6rem 1rem;
+                height: 105px;
+                overflow: hidden;
                 background-color: #0a1e28;
-                border-bottom: 1px solid #00ffff;
+                border-bottom: 2px solid #00ffff;
             }
 
             #version-note {
@@ -603,17 +605,6 @@
                     animation: gradientBorder 20s ease infinite;
                     }
 
-          
-
-
-      #topBar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.6rem 1rem;
-        background: #0f2b3a;
-        border-bottom: 1px solid #00ffff;
-      }
 
       #version-meta {
         font-family: 'Orbitron', sans-serif;
@@ -664,7 +655,9 @@
   <body>
     <div id="app">
       <header id="topBar">
-        <h1 class="app-title">🎧 VoidChop</h1>
+        <img src="icon/Transparent-Icon.png" alt="VoidChop Logo"
+     style="height: 7.5rem; vertical-align: middle; filter: drop-shadow(0 0 4px #020096) drop-shadow(0 0 12px #00cece);" />
+        <h1 class="app-title">VoidChop</h1>
         <div id="version-meta">
           <span id="version-note">Made By C4Taterz</span>
           <span id="version-label">v...</span>

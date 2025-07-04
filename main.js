@@ -56,6 +56,9 @@ const { shell } = require('electron');
 
 ipcMain.handle('trim-audio', async (event, files, outputDir) => {
   console.log('Trimming triggered:');
+event.sender.send('ffmpeg-log', '🧼 Trimming started...');
+event.sender.send('ffmpeg-log', '🌀 Trimming audio...');
+
 
   const start = Date.now();
 
@@ -160,15 +163,6 @@ const menuTemplate = [
           autoUpdater.checkForUpdatesAndNotify().catch(err => {
             dialog.showErrorBox('Update Error', `Failed to check for updates:\n${err.message}`);
           });
-
-
-click: () => {
-  autoUpdater.checkForUpdates().catch(err => {
-    dialog.showErrorBox('Update Error', `Failed to check for updates:\n${err.message}`);
-  });
-}
-
-
         }
       },
       {

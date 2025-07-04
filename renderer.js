@@ -27,11 +27,12 @@ function updateFileBadge(count) {
 clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
 
 document.getElementById('clearFilesBtn').addEventListener('click', () => {
-  selectedPaths = [];
-  updateFileBadge(0);
-  renderSelectedFiles();
-  updateConvertedListVisibility();
-  logBox.textContent = '🧼 File list cleared.';
+selectedPaths = [];
+updateFileBadge(0);
+renderSelectedFiles();
+updateConvertedListVisibility();
+removeProcessingMenu();
+logBox.textContent = '🧼 File list cleared.';
 });
 
 
@@ -50,7 +51,25 @@ document.getElementById('clearFilesBtn').addEventListener('click', () => {
   button.classList.toggle("active", count > 0);
 }
 
+function removeProcessingMenu() {
+  const menu = document.getElementById('processing-menu');
+  if (menu) menu.remove();
+  fileListContainer.style.display = 'block';
+}
 
+function updateProcessingMenu(message) {
+  const container = document.getElementById('processing-steps');
+  if (!container) return;
+
+  const lastMessage = container.lastElementChild?.textContent;
+  if (lastMessage === message) return; // 👈 Skip repeated messages
+
+  const step = document.createElement('div');
+  step.textContent = message;
+  step.style.padding = '2px 0';
+  container.appendChild(step);
+  container.scrollTop = container.scrollHeight;
+}
 
 function updateConvertedListVisibility() {
   let placeholder = document.getElementById('converted-placeholder');
@@ -186,8 +205,9 @@ document.querySelectorAll('.ripple-container').forEach(el => {
 
 
 document.getElementById('selectFilesBtn').addEventListener('click', async () => {
-  const newPaths = await window.api?.selectFiles?.();
+  removeProcessingMenu(); // ✅ clears old "working" panel
 
+  const newPaths = await window.api?.selectFiles?.();
   if (newPaths?.length) {
     const unique = newPaths.filter(p => !selectedPaths.includes(p));
     selectedPaths = [...selectedPaths, ...unique];
@@ -202,22 +222,30 @@ document.getElementById('selectFilesBtn').addEventListener('click', async () => 
 });
 
 
-document.getElementById('setDestinationBtn').addEventListener('click', async () => {
-  const folder = await window.api?.setDestinationFolder?.();
-  if (folder) {
-    outputPath = folder;
-    logBox.textContent += `\n📁 Destination set to:\n  ${folder}`;
-    updateDestinationDisplay(folder);
-    updateConvertedListVisibility();
-  } else {
-    logBox.textContent += `\n⚠️ No folder selected.`;
-  }
-  logBox.scrollTop = logBox.scrollHeight;
-});
-
 
 document.getElementById('trimBtn').addEventListener('click', () => {
   logBox.textContent = "🌀 Trimming started...\n";
+  fileListContainer.style.display = 'none';
+
+  const existingMenu = document.getElementById('processing-menu');
+  if (!existingMenu) {
+    const processingMenu = document.createElement('div');
+    processingMenu.id = 'processing-menu';
+    processingMenu.style.padding = '1rem';
+    processingMenu.style.marginTop = '1rem';
+    processingMenu.style.background = '#181818';
+    processingMenu.style.border = '1px solid #444';
+    processingMenu.style.borderRadius = '6px';
+    processingMenu.style.color = '#ccc';
+    processingMenu.style.textAlign = 'left';
+
+    const stepLog = document.createElement('div');
+    stepLog.id = 'processing-steps';
+    stepLog.textContent = '🔄 Working... Your files are being trimmed.';
+    processingMenu.appendChild(stepLog);
+
+    fileList.insertAdjacentElement('afterend', processingMenu);
+  }
 
   if (!selectedPaths?.length) {
     logBox.textContent += `\n⚠️ No files to trim. Select some first.`;
@@ -231,8 +259,6 @@ document.getElementById('trimBtn').addEventListener('click', () => {
 
   logBox.scrollTop = logBox.scrollHeight;
 });
-
-
 
 
 // Set default theme on load (optional)
@@ -272,7 +298,6 @@ function addConvertedFile(filename) {
       li.appendChild(label);
       li.appendChild(removeBtn); 
 
-      fileList.appendChild(li); // 👈 make sure this is pointing to the correct UL element
       updateConvertedListVisibility();
 
       removeBtn.addEventListener('click', () => { 
@@ -285,12 +310,29 @@ window.addEventListener('ffmpeg-log', e => {
   const msg = e.detail;
   logBox.textContent += `\n${msg}`;
   logBox.scrollTop = logBox.scrollHeight;
+  updateProcessingMenu(msg);
 
-  // Match completed file messages
-const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);  if (match) {
+if (msg.includes('All files finished trimming')) {
+  updateProcessingMenu('🎉 Trimming completed. All files processed.');
+
+  selectedPaths = [];
+  updateFileBadge(0);
+  renderSelectedFiles();
+  updateConvertedListVisibility();
+
+  // ❌ Do not remove the menu here
+  fileListContainer.style.display = 'block'; // Show list again after trim
+}
+
+
+  const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);
+  if (match) {
     addConvertedFile(match[1]);
   }
 });
+
+
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   updateConvertedListVisibility();
