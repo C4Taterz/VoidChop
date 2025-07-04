@@ -188,7 +188,7 @@ function renderSelectedFiles() {
   // ✅ Centralized log message logic — always runs even if no files
   logBox.textContent = '';
   if (selectedPaths.length === 0) {
-    logBox.textContent = '🔄 Start by selecting audio files to process.';
+    logBox.textContent = '📂 Nothing in the queue. Click “Add Files” to begin.';
     logBox.style.display = 'block';
   } else {
     logBox.style.display = 'none';
@@ -241,7 +241,18 @@ document.getElementById('trimBtn').addEventListener('click', () => {
 
     const stepLog = document.createElement('div');
     stepLog.id = 'processing-steps';
-    stepLog.textContent = '🔄 Working... Your files are being trimmed.';
+    stepLog.style.maxHeight = '290px'; // ⬅️ Set a max height to constrain
+    stepLog.style.overflowY = 'auto';  // ⬅️ Enable scrolling if overflow
+    stepLog.style.marginTop = '0.5rem';
+    stepLog.style.paddingRight = '4px';
+    stepLog.style.fontSize = '0.9rem';
+    stepLog.style.lineHeight = '1.4';
+    stepLog.style.whiteSpace = 'pre-wrap'; // Allow wrapped lines
+
+    const initial = document.createElement('div');
+    initial.textContent = '🔄 Working... Your files are being trimmed.';
+    stepLog.appendChild(initial);
+
     processingMenu.appendChild(stepLog);
 
     fileList.insertAdjacentElement('afterend', processingMenu);
