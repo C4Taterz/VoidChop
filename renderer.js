@@ -221,6 +221,18 @@ document.getElementById('selectFilesBtn').addEventListener('click', async () => 
   logBox.scrollTop = logBox.scrollHeight;
 });
 
+document.getElementById('setDestinationBtn').addEventListener('click', async () => {
+  const folder = await window.api?.setDestinationFolder?.();
+  if (folder) {
+    outputPath = folder;
+    logBox.textContent += `\n📁 Destination set to:\n  ${folder}`;
+    updateDestinationDisplay(folder);
+    updateConvertedListVisibility();
+  } else {
+    // Optional: logBox.textContent += `\n⚠️ No folder selected.`;
+  }
+  logBox.scrollTop = logBox.scrollHeight;
+});
 
 
 document.getElementById('trimBtn').addEventListener('click', () => {
