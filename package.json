@@ -1,6 +1,7 @@
 {
   "name": "voidchop",
   "version": "2.4.2",
+  "description": "VoidChop: Strip silence, output clean MP3s—fast and simple.",
   "main": "main.js",
   "build": {
     "asarUnpack": [
@@ -41,7 +42,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "dotenv": "^17.0.0",
     "electron-log": "^5.4.1",
