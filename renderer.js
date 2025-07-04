@@ -312,18 +312,17 @@ window.addEventListener('ffmpeg-log', e => {
   logBox.scrollTop = logBox.scrollHeight;
   updateProcessingMenu(msg);
 
-if (msg.includes('All files finished trimming')) {
-  updateProcessingMenu('🎉 Trimming completed. All files processed.');
+  if (msg.includes('All files finished trimming')) {
 
-  selectedPaths = [];
-  updateFileBadge(0);
-  renderSelectedFiles();
-  updateConvertedListVisibility();
+    fileListContainer.style.display = 'block';
 
-  // ❌ Do not remove the menu here
-  fileListContainer.style.display = 'block'; // Show list again after trim
-}
+    updateProcessingMenu('🎉 Trimming completed. All files processed.');
 
+    selectedPaths = [];
+    updateFileBadge(0);
+    renderSelectedFiles();
+    updateConvertedListVisibility();
+  }
 
   const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);
   if (match) {
