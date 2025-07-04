@@ -12,13 +12,6 @@ let selectedPaths = []; // Important: should be declared globally
 
 
 let outputPath = null;
-(async () => {
-  const saved = await window.api?.getSavedDestination?.();
-if (saved) {
-  outputPath = saved;
-  updateDestinationDisplay(saved); // 👈 new helper function below
-}
-})();
 
 function updateFileBadge(count) {
   const badge = document.getElementById("fileBadge");
@@ -86,7 +79,7 @@ function updateConvertedListVisibility() {
 
     placeholder.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span id="outputPathDisplay">Output // ...</span>
+      <span id="destination-label"></span>
         <span id="placeholderBadgeSlot"></span>
       </div>
     `;
@@ -128,6 +121,14 @@ function updateDestinationDisplay(fullPath) {
     : `Output // ${parts[0]}\\...\\${parts[parts.length - 1]}`;
   el.title = fullPath;
 }
+
+(async () => {
+  const saved = await window.api?.getSavedDestination?.();
+if (saved) {
+  outputPath = saved;
+  updateDestinationDisplay(saved); 
+}
+})();
 
 const fileIcons = {
   mp3: '🎵',
@@ -262,7 +263,7 @@ document.getElementById('trimBtn').addEventListener('click', () => {
     stepLog.style.whiteSpace = 'pre-wrap'; // Allow wrapped lines
 
     const initial = document.createElement('div');
-    initial.textContent = '🔄 Working... Your files are being trimmed.';
+    initial.textContent = '🔄 Working...';
     stepLog.appendChild(initial);
 
     processingMenu.appendChild(stepLog);
@@ -335,17 +336,15 @@ window.addEventListener('ffmpeg-log', e => {
   logBox.scrollTop = logBox.scrollHeight;
   updateProcessingMenu(msg);
 
-  if (msg.includes('All files finished trimming')) {
+if (msg.includes('All files finished trimming')) {
+  fileListContainer.style.display = 'block';
+  selectedPaths = [];
+  updateFileBadge(0);
+  renderSelectedFiles();
+  updateConvertedListVisibility();
+  updateDestinationDisplay(outputPath); // ← make sure it’s visible again
+}
 
-    fileListContainer.style.display = 'block';
-
-    updateProcessingMenu('🎉 Trimming completed. All files processed.');
-
-    selectedPaths = [];
-    updateFileBadge(0);
-    renderSelectedFiles();
-    updateConvertedListVisibility();
-  }
 
   const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);
   if (match) {

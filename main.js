@@ -76,7 +76,7 @@ event.sender.send('ffmpeg-log', '🌀 Trimming audio...');
     () => {
       const duration = ((Date.now() - start) / 1000).toFixed(1);
       console.log('Trimming complete.');
-      event.sender.send('ffmpeg-log', `🎉 All files finished trimming.\n⏱️ Done in ${duration}s`);
+      event.sender.send('ffmpeg-log', `🎉 All files finished trimming.\n⏱️ Completed in ${duration}s`);
       shell.openPath(outputDir);
     }
   );

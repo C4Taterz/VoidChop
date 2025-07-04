@@ -17,6 +17,15 @@
                 border-bottom: 2px solid #00ffff;
             }
 
+                @keyframes breathGlow {
+                0%, 100% { filter: drop-shadow(0 0 4px #074475) drop-shadow(0 0 12px #008bcc); }
+                50% { filter: drop-shadow(0 0 12px #076e97) drop-shadow(0 0 24px #009ccc); }
+            }
+
+            .logo.breath {
+                animation: breathGlow 4.5s ease-in-out infinite;
+            }
+
             #version-note {
                 position: relative;
                 color: #00e1ff;
@@ -223,11 +232,11 @@
                 }
 
             #buttonGroup {
-                display: flex; /* optional, if you want responsiveness */
-                justify-content: center; /* optional, if you want responsiveness */
-                gap: 1rem; /* optional, if you want responsiveness */
-                margin: 20px 0; /* optional, if you want responsiveness */
-                /* optional, if you want responsiveness */
+                display: flex; 
+                justify-content: center; 
+                gap: 1rem; 
+                margin: 20px 0; 
+                
             }
 
             button .ph {
@@ -236,14 +245,26 @@
 
             #selectFilesBtn {
                 background-color: rgb(1, 126, 5);
-                margin: 0;          /* reset any default margin */
-                transform: none;    /* clear any nudge */
-                position: static;   /* if it was bumped out of flow */
+                margin: 0;          
+                transform: none;    
+                position: static;   
             }
 
             #selectFilesBtn:hover {
                 background-color: rgb(91, 228, 95);
             }
+
+            #destination-label {
+                color: #00ffffaa;
+                font-style: italic;
+                font-size: 0.95rem;
+                margin-left: 1rem;
+                transition: opacity 0.3s ease;
+                text-shadow: 
+                    0 0 3px #00ebfc,
+                    0 0 3px #00ebfc;
+            }
+
 
 
             #fileListWrapper {
@@ -698,7 +719,9 @@
   <body>
     <div id="app">
       <header id="topBar">
-        <img src="icon/Transparent-Icon.png" alt="VoidChop Logo"
+<img src="icon/Transparent-Icon.png"
+     alt="VoidChop Logo"
+     class="logo breath"
      style="height: 7.5rem; vertical-align: middle; filter: drop-shadow(0 0 4px #020096) drop-shadow(0 0 12px #00cece);" />
         <h1 class="app-title">VoidChop</h1>
         <div id="version-meta">
