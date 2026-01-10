@@ -1,26 +1,68 @@
+const fileList = document.getElementById('fileList');
+const fileListContainer = document.getElementById('selectedFilesList');
+
+const logBox = document.createElement('pre');
+logBox.style.overflowY = 'auto';
+logBox.style.maxHeight = '400px';
+logBox.style.marginTop = '0.8rem';
+
+fileList.insertAdjacentElement('afterend', logBox); // Attach logBox just below list
+
+let selectedPaths = []; // Important: should be declared globally
+
+
 let outputPath = null;
-(async () => {
-  const saved = await window.api?.getSavedDestination?.();
-if (saved) {
-  outputPath = saved;
-  updateDestinationDisplay(saved); // 👈 new helper function below
-}
-})();
 
 function updateFileBadge(count) {
   const badge = document.getElementById("fileBadge");
   const button = document.getElementById("fileCounterBtn");
+  const clearBtn = document.getElementById('clearFilesBtn');
+clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+
+document.getElementById('clearFilesBtn').addEventListener('click', () => {
+selectedPaths = [];
+updateFileBadge(0);
+renderSelectedFiles();
+updateConvertedListVisibility();
+removeProcessingMenu();
+logBox.textContent = '🧼 File list cleared.';
+});
+
+
   if (!badge || !button) return;
 
-  badge.textContent = count;
+  badge.textContent = count > 0 ? `${count} file${count > 1 ? 's' : ''}` : '0';
+
+
+  // 👇 Trigger pulse animation
   badge.style.animation = "none";
   void badge.offsetWidth;
   badge.style.animation = "badgePulse 0.4s ease";
 
-  // 🔄 Toggle visual class based on count
+  // 👇 Toggle styles based on file presence
+  badge.classList.toggle("active", count > 0);   // 🔄 this is where you apply a dark variant
   button.classList.toggle("active", count > 0);
 }
 
+function removeProcessingMenu() {
+  const menu = document.getElementById('processing-menu');
+  if (menu) menu.remove();
+  fileListContainer.style.display = 'block';
+}
+
+function updateProcessingMenu(message) {
+  const container = document.getElementById('processing-steps');
+  if (!container) return;
+
+  const lastMessage = container.lastElementChild?.textContent;
+  if (lastMessage === message) return; // 👈 Skip repeated messages
+
+  const step = document.createElement('div');
+  step.textContent = message;
+  step.style.padding = '2px 0';
+  container.appendChild(step);
+  container.scrollTop = container.scrollHeight;
+}
 
 function updateConvertedListVisibility() {
   let placeholder = document.getElementById('converted-placeholder');
@@ -37,26 +79,31 @@ function updateConvertedListVisibility() {
 
     placeholder.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span>➕ Add files to start trimming</span>
+      <span id="destination-label"></span>
         <span id="placeholderBadgeSlot"></span>
       </div>
     `;
 
     fileList.appendChild(placeholder);
-
-    const badge = document.getElementById("fileCounterBtn");
-    const slot = document.getElementById("placeholderBadgeSlot");
-
-    if (badge && slot) {
-      slot.appendChild(badge);
-      badge.style.display = "inline-flex";
-      updateFileBadge(selectedPaths.length || 0);
-    }
   }
 
-  const realItems = Array.from(fileList.querySelectorAll('li')).filter(
-    li => li.id !== 'converted-placeholder'
-  );
+  const outputEl = document.getElementById('outputPathDisplay');
+  if (outputEl && outputPath) {
+    const parts = outputPath.split(/[\\/]/);
+    outputEl.textContent = `Output // ${parts[0]}\\...\\${parts[parts.length - 1]}`;
+  }
+
+  const badge = document.getElementById('fileCounterBtn');
+  const slot = document.getElementById('placeholderBadgeSlot');
+  if (badge && slot) {
+    badge.appendChild(slot);
+  }
+
+  // ✅ Visibility logic
+const realItems = Array.from(fileList.querySelectorAll('li')).filter(
+  li => li.id !== 'converted-placeholder'
+);
+
 
   placeholder.style.opacity = realItems.length > 0 ? '0' : '0.5';
   placeholder.style.height = realItems.length > 0 ? '0' : 'auto';
@@ -68,23 +115,20 @@ function updateDestinationDisplay(fullPath) {
   const el = document.getElementById('destination-label');
   if (!el) return;
 
-  // Truncate to first and last folder parts
   const parts = fullPath.split(/[/\\]/);
-  if (parts.length <= 2) {
-    el.textContent = fullPath;
-  } else {
-    el.textContent = `Output | ${parts[0]}\\...\\${parts[parts.length - 1]}`;
-  }
-el.title = fullPath;
+  el.textContent = parts.length <= 2
+    ? fullPath
+    : `Output // ${parts[0]}\\...\\${parts[parts.length - 1]}`;
+  el.title = fullPath;
 }
 
-const fileListContainer = document.getElementById('selectedFilesList');
-const logBox = document.createElement('pre');
-logBox.style.overflowY = 'auto';
-logBox.style.maxHeight = '400px';
-document.body.appendChild(logBox);
-
-let selectedPaths = [];
+(async () => {
+  const saved = await window.api?.getSavedDestination?.();
+if (saved) {
+  outputPath = saved;
+  updateDestinationDisplay(saved); 
+}
+})();
 
 const fileIcons = {
   mp3: '🎵',
@@ -127,50 +171,56 @@ function renderSelectedFiles() {
     removeBtn.style.color = 'red';
     removeBtn.style.cursor = 'pointer';
     removeBtn.title = 'Remove file';
+    removeBtn.classList.add('remove-btn');
 
-removeBtn.addEventListener('click', () => {
-  selectedPaths = selectedPaths.filter(p => p !== fullPath);
-  updateFileBadge(selectedPaths.length);
-  renderSelectedFiles();
-
-  // ✨ Rewrite logBox based on updated selectedPaths
-  logBox.textContent = '';
-  if (selectedPaths.length) {
-    logBox.textContent += `📥 Current files:\n  • ${selectedPaths.map(p => {
-      const name = p.split(/[/\\]/).pop();
-      return name;
-    }).join('\n  • ')}`;
-  } else {
-    logBox.textContent += '📥 No files currently selected.';
-  }
-
-  logBox.scrollTop = logBox.scrollHeight;
-});
+    removeBtn.addEventListener('click', () => {
+      selectedPaths = selectedPaths.filter(p => p !== fullPath);
+      updateFileBadge(selectedPaths.length);
+      renderSelectedFiles();
+      updateConvertedListVisibility();
+      logBox.scrollTop = logBox.scrollHeight;
+    });
 
     li.appendChild(label);
     li.appendChild(removeBtn);
     fileListContainer.appendChild(li);
   });
+
+  // ✅ Centralized log message logic — always runs even if no files
+  logBox.textContent = '';
+  if (selectedPaths.length === 0) {
+    logBox.textContent = '📂 Click “Add Files” to begin.';
+    logBox.style.display = 'block';
+  } else {
+    logBox.style.display = 'none';
+  }
 }
 
 
-document.getElementById('selectFilesBtn').addEventListener('click', async () => {
-  selectedPaths = await window.api?.selectFiles?.();
+document.querySelectorAll('.ripple-container').forEach(el => {
+  el.addEventListener('click', e => {
+    const ripple = el.cloneNode(true);
+    el.parentNode.replaceChild(ripple, el); // restart animation
+  });
+});
 
-  if (selectedPaths?.length) {
+
+document.getElementById('selectFilesBtn').addEventListener('click', async () => {
+  removeProcessingMenu(); // ✅ clears old "working" panel
+
+  const newPaths = await window.api?.selectFiles?.();
+  if (newPaths?.length) {
+    const unique = newPaths.filter(p => !selectedPaths.includes(p));
+    selectedPaths = [...selectedPaths, ...unique];
+
     updateFileBadge(selectedPaths.length);
     renderSelectedFiles();
-
-    const names = selectedPaths.map(p => p.split(/[/\\]/).pop());
-    logBox.textContent = `📥 Current files:\n  • ${names.join('\n  • ')}`;
   } else {
-    logBox.textContent += `\n⚠️ No files selected.`;
     updateFileBadge(0);
   }
 
   logBox.scrollTop = logBox.scrollHeight;
 });
-
 
 document.getElementById('setDestinationBtn').addEventListener('click', async () => {
   const folder = await window.api?.setDestinationFolder?.();
@@ -178,8 +228,9 @@ document.getElementById('setDestinationBtn').addEventListener('click', async () 
     outputPath = folder;
     logBox.textContent += `\n📁 Destination set to:\n  ${folder}`;
     updateDestinationDisplay(folder);
+    updateConvertedListVisibility();
   } else {
-    logBox.textContent += `\n⚠️ No folder selected.`;
+    // Optional: logBox.textContent += `\n⚠️ No folder selected.`;
   }
   logBox.scrollTop = logBox.scrollHeight;
 });
@@ -187,6 +238,38 @@ document.getElementById('setDestinationBtn').addEventListener('click', async () 
 
 document.getElementById('trimBtn').addEventListener('click', () => {
   logBox.textContent = "🌀 Trimming started...\n";
+  fileListContainer.style.display = 'none';
+
+  const existingMenu = document.getElementById('processing-menu');
+  if (!existingMenu) {
+    const processingMenu = document.createElement('div');
+    processingMenu.id = 'processing-menu';
+    processingMenu.style.padding = '1rem';
+    processingMenu.style.marginTop = '1rem';
+    processingMenu.style.background = '#181818';
+    processingMenu.style.border = '1px solid #444';
+    processingMenu.style.borderRadius = '6px';
+    processingMenu.style.color = '#ccc';
+    processingMenu.style.textAlign = 'left';
+
+    const stepLog = document.createElement('div');
+    stepLog.id = 'processing-steps';
+    stepLog.style.maxHeight = '290px'; // ⬅️ Set a max height to constrain
+    stepLog.style.overflowY = 'auto';  // ⬅️ Enable scrolling if overflow
+    stepLog.style.marginTop = '0.5rem';
+    stepLog.style.paddingRight = '4px';
+    stepLog.style.fontSize = '0.9rem';
+    stepLog.style.lineHeight = '1.4';
+    stepLog.style.whiteSpace = 'pre-wrap'; // Allow wrapped lines
+
+    const initial = document.createElement('div');
+    initial.textContent = '🔄 Working...';
+    stepLog.appendChild(initial);
+
+    processingMenu.appendChild(stepLog);
+
+    fileList.insertAdjacentElement('afterend', processingMenu);
+  }
 
   if (!selectedPaths?.length) {
     logBox.textContent += `\n⚠️ No files to trim. Select some first.`;
@@ -200,8 +283,6 @@ document.getElementById('trimBtn').addEventListener('click', () => {
 
   logBox.scrollTop = logBox.scrollHeight;
 });
-
-
 
 
 // Set default theme on load (optional)
@@ -238,35 +319,47 @@ function addConvertedFile(filename) {
   removeBtn.title = 'Remove from list';
 
 
-  li.appendChild(label);
-  li.appendChild(removeBtn); 
+      li.appendChild(label);
+      li.appendChild(removeBtn); 
 
-  fileList.appendChild(li); // 👈 make sure this is pointing to the correct UL element
-  updateConvertedListVisibility();
+      updateConvertedListVisibility();
 
-  removeBtn.addEventListener('click', () => { 
-  li.remove();
-  updateConvertedListVisibility(); // 👈 now it hides placeholder when needed
-});
-
+      removeBtn.addEventListener('click', () => { 
+      li.remove();
+      updateConvertedListVisibility(); // 👈 now it hides placeholder when needed
+  });
 }
-
 
 window.addEventListener('ffmpeg-log', e => {
   const msg = e.detail;
   logBox.textContent += `\n${msg}`;
   logBox.scrollTop = logBox.scrollHeight;
+  updateProcessingMenu(msg);
 
-  // Match completed file messages
-const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);  if (match) {
+if (msg.includes('All files finished trimming')) {
+  fileListContainer.style.display = 'block';
+  selectedPaths = [];
+  updateFileBadge(0);
+  renderSelectedFiles();
+  updateConvertedListVisibility();
+  updateDestinationDisplay(outputPath); // ← make sure it’s visible again
+}
+
+
+  const match = msg.match(/(?:Finished trimming|Trimmed:)\s*(.+\.(mp3|wav|ogg))/i);
+  if (match) {
     addConvertedFile(match[1]);
   }
 });
 
 
 
+
 window.addEventListener('DOMContentLoaded', async () => {
   updateConvertedListVisibility();
+  renderSelectedFiles(); // now it has access to the real logBox
+
+  console.log('Startup selectedPaths:', selectedPaths);
 
   const el = document.getElementById('version-label');
   try {
@@ -276,8 +369,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn('❗ Version fetch failed:', err);
     el.textContent = 'v—';
   }
-});
 
+
+function bindButtonPressAnimations() {
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.remove('press');
+      void btn.offsetWidth;
+      btn.classList.add('press');
+    });
+  });
+}
+
+});
 
 window.addEventListener('ffmpeg-error', e => {
   logBox.textContent += `\n🚨 ${e.detail}`;

@@ -1,6 +1,7 @@
 {
   "name": "voidchop",
-  "version": "1.2.1",
+  "version": "2.4.6",
+  "description": "VoidChop: Strip silence, output clean MP3s—fast and simple.",
   "main": "main.js",
   "build": {
     "asarUnpack": [
@@ -8,6 +9,7 @@
     ],
     "appId": "com.taterz.spud",
     "files": [
+      "icon/**",
       "main.js",
       "preload.js",
       "renderer.js",
@@ -28,21 +30,23 @@
     "publish": {
       "provider": "github",
       "owner": "C4Taterz",
-      "repo": "VoidChop"
+      "repo": "VoidChop",
+      "releaseType": "release"
     }
   },
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
+    "publish": "electron-builder --publish always",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "dotenv": "^17.0.0",
     "electron-log": "^5.4.1",
+    "electron-updater": "^6.6.2",
     "fluent-ffmpeg": "^2.1.3",
     "update-electron-app": "^3.1.1"
   },
